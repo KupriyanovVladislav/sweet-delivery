@@ -1,0 +1,28 @@
+#docker-compose.yml
+version: "3.0"
+services:
+  app:
+    build: .
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+    env_file:
+      - .env
+    environment:
+      DB_USER: ${DB_USER}
+      DB_HOST: db
+      DB_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "8000:8000"
+    restart: always
+  db:
+    image: postgres
+    expose:
+      - "5432"
+    ports:
+      - "0.0.0.0:5442:5432"
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
