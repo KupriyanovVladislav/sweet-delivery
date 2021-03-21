@@ -1,8 +1,7 @@
 from time import strptime
 from typing import List
 
-
-HOURS_TEMPLATE = '%H:%M'  # 'HH:MM'
+from app.utils.constants import TIME_TEMPLATE
 
 
 def validate_hours_periods(periods: List[str]) -> None:
@@ -20,7 +19,7 @@ def validate_period(period: str) -> None:
         )
     try:
         for period_time in period_times:
-            strptime(period_time, HOURS_TEMPLATE)
+            strptime(period_time, TIME_TEMPLATE)
     except ValueError:
         raise ValueError(f'Period {period} is invalid!')
 
