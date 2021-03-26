@@ -1,12 +1,14 @@
 from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
 
-from app.api.models import CreateCourierRequest, CourierPatchRequest, CreateOrdersRequest, OrdersAssignPostRequest, OrdersPostResponse, OrderId, CouriersPostRequest, CourierId, OrdersCompletePostRequest
-from app.utils.assigner import OrdersAssigner
+from app.api.mediator import OrderAssignMediator
+from app.api.models import CreateCourierRequest, CourierPatchRequest, CreateOrdersRequest, OrdersAssignPostRequest, \
+    OrdersPostResponse, OrderId, CouriersPostRequest, CourierId, OrdersCompletePostRequest, OrdersAssignPostResponse
 from app.utils.constants import NOT_EXISTS_MSG
-from app.utils.exceptions import OrderForCourierNotExist
-from app.utils.managers import CouriersManager, OrdersManager, get_objects_ids
+from app.api.exceptions import OrderForCourierNotExist
+from app.db.managers import CouriersManager, OrdersManager, get_objects_ids
 from app.utils.response_processor import already_exists_response_content
+
 
 api_router = APIRouter()
 
@@ -38,6 +40,7 @@ async def update_courier(
             content={'msg': NOT_EXISTS_MSG.format(entity='Courier')},
         )
     updated_courier = await CouriersManager.update(courier_id, patch_request.dict())
+    await OrderAssignMediator(courier_id, updated_courier).unassign()
     return updated_courier
 
 
@@ -64,8 +67,11 @@ async def assign_orders_to_courier(request: OrdersAssignPostRequest):
             status_code=status.HTTP_400_BAD_REQUEST,
             content={'msg': NOT_EXISTS_MSG.format(entity='Courier')},
         )
-    assigned_orders = await OrdersAssigner(request.courier_id, db_courier).assign_orders()
-    return assigned_orders
+    orders, assign_time = await OrderAssignMediator(request.courier_id, db_courier).assign()
+    return OrdersAssignPostResponse(
+        orders=[OrderId(id=order.id) for order in orders],
+        assign_time=assign_time,
+    )
 
 
 @api_router.post('/orders/complete')
@@ -83,7 +89,7 @@ async def complete_order(request: OrdersCompletePostRequest):
             content={'msg': NOT_EXISTS_MSG.format(entity='Order')},
         )
     try:
-        await OrdersAssigner(request.courier_id).complete_order(
+        await OrderAssignMediator(request.courier_id, db_courier).complete(
             request.order_id,
             request.complete_time,
         )

@@ -43,4 +43,5 @@ couriers_orders_table = Table(
     Column('assign_time', DateTime, default=datetime.utcnow, nullable=False),
     Column('complete_time', DateTime, default=None),
     Column('duration', Integer, default=None),
+    Column('coefficient', Integer, nullable=False),
 )

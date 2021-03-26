@@ -71,7 +71,8 @@ class Order(BaseModel):
     class Config:
         extra = Extra.forbid
         allow_population_by_field_name = True
-        allow_mutation = False
+        # allow_mutation = False
+        frozen = True
 
     @validator('weight')
     def check_positive_weight(cls, weight):
@@ -94,6 +95,9 @@ class Order(BaseModel):
 class CreateOrdersRequest(BaseModel):
     data: List[Order]
 
+    class Config:
+        extra = Extra.forbid
+
 
 class OrderId(BaseModel):
     id: int
@@ -106,6 +110,9 @@ class OrdersPostResponse(BaseModel):
 class OrdersAssignPostRequest(BaseModel):
     courier_id: int
 
+    class Config:
+        extra = Extra.forbid
+
 
 class OrdersAssignPostResponse(BaseModel):
     orders: List[OrderId] = []
@@ -115,6 +122,7 @@ class OrdersAssignPostResponse(BaseModel):
 class OrderAssignTime(BaseModel):
     id: int = Field(..., alias='order_id')
     assign_time: datetime
+    complete_time: Optional[datetime] = None
 
     class Config:
         allow_population_by_field_name = True
