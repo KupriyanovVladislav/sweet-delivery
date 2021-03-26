@@ -19,9 +19,9 @@ class OrderSelector(IOrderSelector):
         where_conditions = [couriers_orders_table.c.courier_id == self.courier_id]
         order_columns = [couriers_orders_table.c.assign_time]
         if not completed:
-            where_conditions.append(couriers_orders_table.c.complete_time == None)
+            where_conditions.append(couriers_orders_table.c.complete_time.is_(None))
         else:
-            where_conditions.append(couriers_orders_table.c.complete_time != None)
+            where_conditions.append(couriers_orders_table.c.complete_time.isnot(None))
             order_columns.append(couriers_orders_table.c.complete_time)
 
         model = Order
@@ -58,7 +58,7 @@ class OrderSelector(IOrderSelector):
         ]).select_from(
             orders_table.join(couriers_orders_table, isouter=True),
         ).where(and_(
-            couriers_orders_table.c.courier_id == None,  # Orders of one courier not must be available for other
+            couriers_orders_table.c.courier_id.is_(None),  # Orders of one courier not must be available for other
         ))
         orders = [Order(**order) for order in await database.fetch_all(query)]
         return orders
