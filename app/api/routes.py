@@ -1,9 +1,11 @@
 from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
 
+from app.api.courier_statistic import CourierStatistic
 from app.api.mediator import OrderAssignMediator
 from app.api.models import CreateCourierRequest, CourierPatchRequest, CreateOrdersRequest, OrdersAssignPostRequest, \
-    OrdersPostResponse, OrderId, CouriersPostRequest, CourierId, OrdersCompletePostRequest, OrdersAssignPostResponse
+    OrdersPostResponse, OrderId, CouriersPostRequest, CourierId, OrdersCompletePostRequest, OrdersAssignPostResponse, \
+    CourierGetResponse
 from app.utils.constants import NOT_EXISTS_MSG
 from app.api.exceptions import OrderForCourierNotExist, OrderAlreadyCompleted, InvalidDataError
 from app.db.managers import CouriersManager, OrdersManager, get_objects_ids
@@ -99,3 +101,21 @@ async def complete_order(request: OrdersCompletePostRequest):
             content={'msg': str(exc)},
         )
     return CourierId(id=request.courier_id)
+
+
+@api_router.get('/couriers/{courier_id}', status_code=status.HTTP_200_OK)
+async def get_courier_info(courier_id: int):
+    db_courier = await CouriersManager.get([courier_id], many=False)
+    if not db_courier:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={'msg': NOT_EXISTS_MSG.format(entity='Courier')},
+        )
+    courier_statistic = CourierStatistic(db_courier)
+    rating = await courier_statistic.get_rating()
+    earnings = await courier_statistic.get_earnings()
+    return CourierGetResponse(
+        **db_courier.dict(),
+        rating=rating,
+        earnings=earnings,
+    )

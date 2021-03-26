@@ -86,7 +86,7 @@ class OrderAssignMediator(Interface):
     @staticmethod
     def _find_duration(start_date, end_date) -> float:
         diff = (end_date - start_date).total_seconds()
-        if diff <= 0:
+        if diff < 0:
             raise InvalidCompleteTime
         return diff
 

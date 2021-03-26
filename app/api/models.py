@@ -140,3 +140,8 @@ class OrdersCompletePostRequest(BaseModel):
         except ValueError:
             raise ValueError('Complete time is invalid!')
         return value
+
+
+class CourierGetResponse(Courier):
+    rating: float
+    earnings: int
