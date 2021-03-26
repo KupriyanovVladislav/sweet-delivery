@@ -3,7 +3,7 @@ from typing import List, Optional, Tuple
 
 from sqlalchemy import and_
 
-from app.api.exceptions import OrderForCourierNotExist
+from app.api.exceptions import OrderForCourierNotExist, OrderAlreadyCompleted, InvalidCompleteTime
 from app.api.interface import Interface
 from app.api.models import Courier, Order
 from app.api.order_assigner import OrderAssigner
@@ -32,7 +32,7 @@ class OrderAssignMediator(Interface):
         orders = await order_selector.select(completed=False, with_assign_time=True)  # Get not completed orders
         assign_time = None
         if orders:
-            assign_time = orders[0].assign_time
+            assign_time = orders[0].assign_time  # Last assign time
 
         else:  # If not completed orders does not exist then we must found suited orders
             orders = await order_selector.select_suited_orders()  # Orders which is not belong to other couriers
@@ -64,14 +64,16 @@ class OrderAssignMediator(Interface):
 
     async def complete(self, order_id: int, complete_time: str):
         """Mark order completed with computing duration."""
-        is_exists = await database.execute(
+        entry = await database.fetch_one(
             couriers_orders_table.select().where(and_(
                 couriers_orders_table.c.order_id == order_id,
                 couriers_orders_table.c.courier_id == self.courier_id,
             )),
         )
-        if not is_exists:
+        if not entry:
             raise OrderForCourierNotExist
+        elif entry.get('complete_time') is not None:
+            raise OrderAlreadyCompleted
 
         db_courier = await self.get_courier()
         order_assigner = OrderAssigner(courier_id=self.courier_id, courier=db_courier)
@@ -83,7 +85,10 @@ class OrderAssignMediator(Interface):
 
     @staticmethod
     def _find_duration(start_date, end_date) -> float:
-        return (end_date - start_date).total_seconds()
+        diff = (end_date - start_date).total_seconds()
+        if diff <= 0:
+            raise InvalidCompleteTime
+        return diff
 
     async def _get_last_order_date(self) -> datetime:
         """Returns date of last completed order. If all orders are not completed, it returns assign time."""

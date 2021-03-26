@@ -5,7 +5,7 @@ from app.api.mediator import OrderAssignMediator
 from app.api.models import CreateCourierRequest, CourierPatchRequest, CreateOrdersRequest, OrdersAssignPostRequest, \
     OrdersPostResponse, OrderId, CouriersPostRequest, CourierId, OrdersCompletePostRequest, OrdersAssignPostResponse
 from app.utils.constants import NOT_EXISTS_MSG
-from app.api.exceptions import OrderForCourierNotExist
+from app.api.exceptions import OrderForCourierNotExist, OrderAlreadyCompleted, InvalidDataError
 from app.db.managers import CouriersManager, OrdersManager, get_objects_ids
 from app.utils.response_processor import already_exists_response_content
 
@@ -93,7 +93,7 @@ async def complete_order(request: OrdersCompletePostRequest):
             request.order_id,
             request.complete_time,
         )
-    except OrderForCourierNotExist as exc:
+    except InvalidDataError as exc:
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
             content={'msg': str(exc)},
