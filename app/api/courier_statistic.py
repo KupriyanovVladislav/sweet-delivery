@@ -26,7 +26,9 @@ class CourierStatistic:
         """Find min average time group by regions."""
         column_name = 'average_time'
         columns = (func.avg(couriers_orders_table.c.duration).label(column_name),)
-        query = self._get_query(columns).group_by(orders_table.c.region).limit(1)
+        query = self._get_query(columns).group_by(
+            orders_table.c.region,
+        ).order_by(column_name).limit(1)
         select_result = await database.fetch_one(query)
         return select_result.get(column_name) if select_result else None
 
