@@ -2,8 +2,8 @@ from typing import List, Union
 
 from sqlalchemy import and_, select
 
-from app.api.models import Order, OrderAssignTime
 from app.api.interface import IOrderSelector
+from app.api.models import Order, OrderAssignTime
 from app.db import database
 from app.db.schema import couriers_orders_table, orders_table
 

@@ -13,8 +13,9 @@ services:
       DB_USER: ${DB_USER}
       DB_HOST: db
       DB_PASSWORD: ${DB_PASSWORD}
+      DB_PORT: ${DB_PORT}
     ports:
-      - "8000:8000"
+      - "8080:8080"
     restart: always
   db:
     image: postgres

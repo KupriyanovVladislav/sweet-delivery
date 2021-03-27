@@ -4,7 +4,7 @@ from sqlalchemy import and_, func, select
 
 from app.api.models import Courier
 from app.db import database
-from app.db.schema import orders_table, couriers_orders_table
+from app.db.schema import couriers_orders_table, orders_table
 
 
 class CourierStatistic:

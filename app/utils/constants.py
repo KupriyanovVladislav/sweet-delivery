@@ -1,6 +1,5 @@
 from app.db.schema import CourierTypeEnum
 
-
 TIME_TEMPLATE = '%H:%M'  # 'HH:MM'
 
 MAX_WEIGHT = 50  # max weight for order

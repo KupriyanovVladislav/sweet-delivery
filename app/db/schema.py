@@ -1,9 +1,9 @@
-from sqlalchemy import (
-    ARRAY, Column, DateTime, Enum as SQLEnum, Float, ForeignKey, Integer, String, Table, MetaData,
-)
 from datetime import datetime
-
 from enum import Enum, unique
+
+from sqlalchemy import ARRAY, Column, DateTime
+from sqlalchemy import Enum as SQLEnum
+from sqlalchemy import Float, ForeignKey, Integer, MetaData, String, Table
 
 
 @unique

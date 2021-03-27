@@ -2,21 +2,24 @@ from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
 
 from app.api.courier_statistic import CourierStatistic
+from app.api.exceptions import InvalidDataError
 from app.api.mediator import OrderAssignMediator
-from app.api.models import CreateCourierRequest, CourierPatchRequest, CreateOrdersRequest, OrdersAssignPostRequest, \
-    OrdersPostResponse, OrderId, CouriersPostRequest, CourierId, OrdersCompletePostRequest, OrdersAssignPostResponse, \
-    CourierGetResponse
-from app.utils.constants import NOT_EXISTS_MSG
-from app.api.exceptions import OrderForCourierNotExist, OrderAlreadyCompleted, InvalidDataError
+from app.api.models import (
+    CourierGetResponse, CourierId, CourierPatchRequest,
+    CouriersPostRequest, CouriersPostResponse, OrderId,
+    OrdersAssignPostRequest, OrdersAssignPostResponse,
+    OrdersCompletePostRequest, OrdersPostRequest,
+    OrdersPostResponse,
+)
 from app.db.managers import CouriersManager, OrdersManager, get_objects_ids
+from app.utils.constants import NOT_EXISTS_MSG
 from app.utils.response_processor import already_exists_response_content
-
 
 api_router = APIRouter()
 
 
 @api_router.post('/couriers', status_code=status.HTTP_201_CREATED)
-async def create_couriers(courier_request: CreateCourierRequest):
+async def create_couriers(courier_request: CouriersPostRequest):
     couriers = courier_request.data
     db_couriers = await CouriersManager.get(get_objects_ids(couriers))
     if db_couriers:
@@ -25,7 +28,7 @@ async def create_couriers(courier_request: CreateCourierRequest):
             content=already_exists_response_content(db_couriers, 'couriers'),
         )
     couriers = await CouriersManager.create(couriers)
-    return CouriersPostRequest(
+    return CouriersPostResponse(
         couriers=[CourierId(id=courier.id) for courier in couriers]
     )
 
@@ -47,7 +50,7 @@ async def update_courier(
 
 
 @api_router.post('/orders', status_code=status.HTTP_201_CREATED)
-async def create_orders(orders_request: CreateOrdersRequest):
+async def create_orders(orders_request: OrdersPostRequest):
     orders = orders_request.data
     db_orders = await OrdersManager.get(get_objects_ids(orders))
     if db_orders:

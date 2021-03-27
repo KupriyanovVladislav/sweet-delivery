@@ -1,25 +1,25 @@
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import (
-    BaseModel, Extra, Field, validator,
-)
+from pydantic import BaseModel, Extra, Field, validator
 
 from app.db.schema import CourierTypeEnum
 from app.utils.constants import MAX_WEIGHT, MIN_WEIGHT, RFC_TIME_FORMAT
 from app.utils.validators import validate_hours_periods, validate_regions
 
 
-class Courier(BaseModel):
+class Base(BaseModel):
+    class Config:
+        extra = Extra.forbid
+        allow_population_by_field_name = True
+
+
+class Courier(Base):
     id: int = Field(..., alias='courier_id')
     type: CourierTypeEnum = Field(..., alias='courier_type')
     regions: List[int]
     working_hours: List[str]
 
-    class Config:
-        extra = Extra.forbid
-        allow_population_by_field_name = True
-
     @validator('working_hours')
     def check_working_hours(cls, periods: List[str]):
         validate_hours_periods(periods)
@@ -31,26 +31,23 @@ class Courier(BaseModel):
         return regions
 
 
-class CreateCourierRequest(BaseModel):
+class CouriersPostRequest(Base):
     data: List[Courier]
 
 
-class CourierId(BaseModel):
+class CourierId(Base):
     id: int
 
 
-class CouriersPostRequest(BaseModel):
+class CouriersPostResponse(Base):
     couriers: List[CourierId]
 
 
-class CourierPatchRequest(BaseModel):
+class CourierPatchRequest(Base):
     type: Optional[CourierTypeEnum] = Field(None, alias='courier_type')
     regions: Optional[List[int]] = None
     working_hours: Optional[List[str]] = None
 
-    class Config:
-        extra = Extra.forbid
-
     @validator('working_hours')
     def check_working_hours(cls, periods: List[str]):
         validate_hours_periods(periods)
@@ -62,17 +59,11 @@ class CourierPatchRequest(BaseModel):
         return regions
 
 
-class Order(BaseModel):
+class Order(Base):
     id: int = Field(..., alias='order_id')
     weight: float
     region: int
     delivery_hours: List[str]
-
-    class Config:
-        extra = Extra.forbid
-        allow_population_by_field_name = True
-        # allow_mutation = False
-        frozen = True
 
     @validator('weight')
     def check_positive_weight(cls, weight):
@@ -92,43 +83,37 @@ class Order(BaseModel):
         return periods
 
 
-class CreateOrdersRequest(BaseModel):
+class OrdersPostRequest(Base):
     data: List[Order]
 
-    class Config:
-        extra = Extra.forbid
 
-
-class OrderId(BaseModel):
+class OrderId(Base):
     id: int
 
 
-class OrdersPostResponse(BaseModel):
+class OrdersPostResponse(Base):
     orders: List[OrderId]
 
 
-class OrdersAssignPostRequest(BaseModel):
+class OrdersAssignPostRequest(Base):
     courier_id: int
 
     class Config:
         extra = Extra.forbid
 
 
-class OrdersAssignPostResponse(BaseModel):
+class OrdersAssignPostResponse(Base):
     orders: List[OrderId] = []
     assign_time: Optional[str] = None
 
 
-class OrderAssignTime(BaseModel):
+class OrderAssignTime(Base):
     id: int = Field(..., alias='order_id')
     assign_time: datetime
     complete_time: Optional[datetime] = None
 
-    class Config:
-        allow_population_by_field_name = True
 
-
-class OrdersCompletePostRequest(BaseModel):
+class OrdersCompletePostRequest(Base):
     courier_id: int
     order_id: int
     complete_time: str

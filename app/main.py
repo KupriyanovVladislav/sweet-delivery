@@ -7,7 +7,6 @@ from uvicorn import run
 from app.api.routes import api_router
 from app.db import database
 
-
 app = FastAPI()
 app.include_router(api_router)
 
@@ -37,4 +36,4 @@ async def root(param: int):
 
 
 if __name__ == '__main__':
-    run('main:app', host='0.0.0.0', port=8000, reload=True)
+    run(app, host='0.0.0.0', port=8080)

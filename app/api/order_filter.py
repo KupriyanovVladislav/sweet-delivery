@@ -1,9 +1,9 @@
 from datetime import datetime, time
 from typing import List, Tuple
 
-from app.api.models import Order
 from app.api.interface import IOrderFilter
-from app.utils.constants import TIME_TEMPLATE, COURIER_POWER
+from app.api.models import Order
+from app.utils.constants import COURIER_POWER, TIME_TEMPLATE
 
 
 class OrderFilter(IOrderFilter):
