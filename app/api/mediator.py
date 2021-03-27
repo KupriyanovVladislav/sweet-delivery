@@ -79,10 +79,10 @@ class OrderAssignMediator(Interface):
         db_courier = await self.get_courier()
         order_assigner = OrderAssigner(courier_id=self.courier_id, courier=db_courier)
         complete_time = datetime.strptime(complete_time, RFC_TIME_FORMAT)
-        last_order_complete_time = await self._get_last_order_date()  # Get date of last completed order
         assign_time = entry.get('assign_time')  # Assign time of this order
+        last_order_complete_time = await self._get_last_order_date(assign_time)  # Get date of last completed order
         # assign time will be None if courier doesn't have completed orders.
-        if not last_order_complete_time or assign_time > last_order_complete_time:
+        if not last_order_complete_time:
             last_order_complete_time = assign_time
         duration = self._find_duration(last_order_complete_time, complete_time)
 
@@ -95,9 +95,13 @@ class OrderAssignMediator(Interface):
             raise InvalidCompleteTime
         return diff
 
-    async def _get_last_order_date(self) -> Optional[datetime]:
-        """Returns date of last completed order. If all orders are not completed, it returns None."""
+    async def _get_last_order_date(self, assign_time: datetime) -> Optional[datetime]:
+        """Returns date of last completed order from current delivery."""
         db_courier = await self.get_courier()
         order_selector = OrderSelector(courier_id=self.courier_id, courier=db_courier)
-        orders = await order_selector.select(completed=True, with_assign_time=True)  # Get sorted completed orders
+        orders = await order_selector.select(
+            completed=True,
+            assign_time=assign_time,
+            with_assign_time=True,
+        )  # Get sorted completed orders
         return orders[-1].complete_time if orders else None

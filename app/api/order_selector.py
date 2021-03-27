@@ -1,4 +1,5 @@
-from typing import List, Union
+from datetime import datetime
+from typing import List, Union, Optional
 
 from sqlalchemy import and_, select
 
@@ -13,11 +14,14 @@ class OrderSelector(IOrderSelector):
     async def select(
         self,
         completed: bool = False,
+        assign_time: Optional[datetime] = None,
         with_assign_time: bool = False,
     ) -> Union[List[OrderAssignTime], List[Order]]:
         """Returns sorted (not) completed orders for courier."""
         where_conditions = [couriers_orders_table.c.courier_id == self.courier_id]
         order_columns = [couriers_orders_table.c.assign_time]
+        if assign_time:
+            where_conditions.append(couriers_orders_table.c.assign_time == assign_time)
         if not completed:
             where_conditions.append(couriers_orders_table.c.complete_time.is_(None))
         else:

@@ -40,6 +40,7 @@ class IOrderSelector(Interface):
     def select(
         self,
         completed: bool = False,
+        assign_time: Optional[datetime] = None,
         with_assign_time: bool = False,
     ) -> Union[List[OrderAssignTime], List[Order]]:
         pass

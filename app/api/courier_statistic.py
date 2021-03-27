@@ -11,9 +11,9 @@ class CourierStatistic:
     def __init__(self, courier: Courier):
         self.courier = courier
 
-    async def get_rating(self) -> float:
+    async def get_rating(self) -> Optional[float]:
         min_avg_duration = await self._find_min_avg_duration()
-        return self._compute_rating(min_avg_duration) if min_avg_duration else 0
+        return self._compute_rating(min_avg_duration) if min_avg_duration else None
 
     async def get_earnings(self) -> int:
         columns = (couriers_orders_table.c.coefficient,)

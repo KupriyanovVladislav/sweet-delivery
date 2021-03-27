@@ -128,5 +128,5 @@ class OrdersCompletePostRequest(Base):
 
 
 class CourierGetResponse(Courier):
-    rating: float
+    rating: Optional[float]
     earnings: int
