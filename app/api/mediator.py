@@ -80,7 +80,8 @@ class OrderAssignMediator(Interface):
         order_assigner = OrderAssigner(courier_id=self.courier_id, courier=db_courier)
         complete_time = datetime.strptime(complete_time, RFC_TIME_FORMAT)
         assign_time = entry.get('assign_time')  # Assign time of this order
-        last_order_complete_time = await self._get_last_order_date(assign_time)  # Get date of last completed order
+        # Get date of last completed order from current delivery
+        last_order_complete_time = await self._get_last_order_date(assign_time)
         # assign time will be None if courier doesn't have completed orders.
         if not last_order_complete_time:
             last_order_complete_time = assign_time
@@ -103,5 +104,5 @@ class OrderAssignMediator(Interface):
             completed=True,
             assign_time=assign_time,
             with_assign_time=True,
-        )  # Get sorted completed orders
+        )  # Get sorted completed orders from current delivery
         return orders[-1].complete_time if orders else None
