@@ -22,6 +22,7 @@ def get_application() -> FastAPI:
             "Training project for Yandex academy."
             + "\nWARNING! 400 (bad request) will be instead of 422 (validation error)."
             + "\nIf you see 422 in the documentation, ignore it. Keep in mind the note above"
+            + "\nBody of 400 response may differ!"
         ),
     )
 
@@ -37,6 +38,7 @@ def get_application() -> FastAPI:
 app = get_application()
 
 
+# TODO: DELETE
 @app.get("/")
 async def root(param: int):
     return {"message": param}
