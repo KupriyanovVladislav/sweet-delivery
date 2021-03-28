@@ -5,12 +5,13 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 
 from app.db.schema import metadata
+from app.db import DB_NAME
 
 config = context.config
 section = config.config_ini_section
 config.set_section_option(section, "DB_USER", environ.get('DB_USER', 'root'))
 config.set_section_option(section, "DB_PASS", environ.get('DB_PASSWORD', 'root'))
-config.set_section_option(section, "DB_NAME", environ.get('DB_NAME', 'sweet_delivery'))
+config.set_section_option(section, "DB_NAME", DB_NAME)
 config.set_section_option(section, "DB_HOST", environ.get('DB_HOST', 'localhost'))
 config.set_section_option(section, "DB_PORT", environ.get('DB_PORT', '5442'))
 
