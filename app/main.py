@@ -38,11 +38,5 @@ def get_application() -> FastAPI:
 app = get_application()
 
 
-# TODO: DELETE
-@app.get("/")
-async def root(param: int):
-    return {"message": param}
-
-
 if __name__ == '__main__':
     run(app, host='0.0.0.0', port=8080)
