@@ -3,8 +3,9 @@ from typing import List, Optional, Tuple
 
 from sqlalchemy import and_
 
-from app.api.exceptions import (InvalidCompleteTime, OrderAlreadyCompleted,
-                                OrderForCourierNotExist)
+from app.api.exceptions import (
+    InvalidCompleteTime, OrderAlreadyCompleted, OrderForCourierNotExist,
+)
 from app.api.interface import Interface
 from app.api.models import Courier, Order
 from app.api.order_assigner import OrderAssigner

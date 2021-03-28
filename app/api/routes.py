@@ -9,7 +9,7 @@ from app.api.models import (
     CouriersPostRequest, CouriersPostResponse, OrderId,
     OrdersAssignPostRequest, OrdersAssignPostResponse,
     OrdersCompletePostRequest, OrdersPostRequest,
-    OrdersPostResponse,
+    OrdersPostResponse, Courier,
 )
 from app.db.managers import CouriersManager, OrdersManager, get_objects_ids
 from app.utils.constants import NOT_EXISTS_MSG
@@ -18,7 +18,11 @@ from app.utils.response_processor import already_exists_response_content
 api_router = APIRouter()
 
 
-@api_router.post('/couriers', status_code=status.HTTP_201_CREATED)
+@api_router.post(
+    '/couriers',
+    status_code=status.HTTP_201_CREATED,
+    response_model=CouriersPostResponse,
+)
 async def create_couriers(courier_request: CouriersPostRequest):
     couriers = courier_request.data
     db_couriers = await CouriersManager.get(get_objects_ids(couriers))
@@ -33,7 +37,11 @@ async def create_couriers(courier_request: CouriersPostRequest):
     )
 
 
-@api_router.patch('/couriers/{courier_id}', status_code=status.HTTP_200_OK)
+@api_router.patch(
+    '/couriers/{courier_id}',
+    status_code=status.HTTP_200_OK,
+    response_model=Courier,
+)
 async def update_courier(
     courier_id: int,
     patch_request: CourierPatchRequest,
@@ -49,7 +57,11 @@ async def update_courier(
     return updated_courier
 
 
-@api_router.post('/orders', status_code=status.HTTP_201_CREATED)
+@api_router.post(
+    '/orders',
+    status_code=status.HTTP_201_CREATED,
+    response_model=OrdersPostResponse,
+)
 async def create_orders(orders_request: OrdersPostRequest):
     orders = orders_request.data
     db_orders = await OrdersManager.get(get_objects_ids(orders))
@@ -64,7 +76,11 @@ async def create_orders(orders_request: OrdersPostRequest):
     )
 
 
-@api_router.post('/orders/assign', status_code=status.HTTP_200_OK)
+@api_router.post(
+    '/orders/assign',
+    status_code=status.HTTP_200_OK,
+    response_model=OrdersAssignPostResponse,
+)
 async def assign_orders_to_courier(request: OrdersAssignPostRequest):
     db_courier = await CouriersManager.get([request.courier_id], many=False)
     if not db_courier:
@@ -79,7 +95,11 @@ async def assign_orders_to_courier(request: OrdersAssignPostRequest):
     )
 
 
-@api_router.post('/orders/complete')
+@api_router.post(
+    '/orders/complete',
+    status_code=status.HTTP_200_OK,
+    response_model=CourierId,
+)
 async def complete_order(request: OrdersCompletePostRequest):
     db_courier = await CouriersManager.get([request.courier_id], many=False)
     if not db_courier:
@@ -106,7 +126,11 @@ async def complete_order(request: OrdersCompletePostRequest):
     return CourierId(id=request.courier_id)
 
 
-@api_router.get('/couriers/{courier_id}', status_code=status.HTTP_200_OK)
+@api_router.get(
+    '/couriers/{courier_id}',
+    status_code=status.HTTP_200_OK,
+    response_model=CourierGetResponse,
+)
 async def get_courier_info(courier_id: int):
     db_courier = await CouriersManager.get([courier_id], many=False)
     if not db_courier:

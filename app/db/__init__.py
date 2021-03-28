@@ -11,6 +11,4 @@ DB_PORT = environ.get('DB_PORT', '5442')
 DATABASE_URL = (
     f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 )
-print('-----------------------')
-print(DATABASE_URL)
 database = Database(DATABASE_URL)

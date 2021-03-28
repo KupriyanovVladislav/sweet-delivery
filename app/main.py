@@ -1,33 +1,40 @@
-from fastapi import FastAPI, Request, status
-from fastapi.encoders import jsonable_encoder
+from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
 from uvicorn import run
 
+from app.api.errors import validation_exception_handler
 from app.api.routes import api_router
 from app.db import database
 
-app = FastAPI()
-app.include_router(api_router)
 
-
-@app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    result = {'validation_error': [error for error in exc.errors()]}
-    return JSONResponse(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        content=jsonable_encoder(result),
-    )
-
-
-@app.on_event("startup")
 async def startup():
     await database.connect()
 
 
-@app.on_event("shutdown")
 async def shutdown():
     await database.disconnect()
+
+
+def get_application() -> FastAPI:
+    application = FastAPI(
+        title="Sweet delivery",
+        description=(
+            "Training project for Yandex academy."
+            + "\nWARNING! 400 (bad request) will be instead of 422 (validation error)."
+            + "\nIf you see 422 in the documentation, ignore it. Keep in mind the note above"
+        ),
+    )
+
+    application.add_event_handler("startup", startup)
+    application.add_event_handler("shutdown", shutdown)
+
+    application.add_exception_handler(RequestValidationError, validation_exception_handler)
+
+    application.include_router(api_router)
+    return application
+
+
+app = get_application()
 
 
 @app.get("/")

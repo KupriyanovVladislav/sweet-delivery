@@ -8,7 +8,7 @@ from app.api.models import Order
 from app.db import database
 from app.db.managers import get_objects_ids
 from app.db.schema import couriers_orders_table
-from app.utils.constants import COURIER_COEFFICIENT, RFC_TIME_FORMAT
+from app.utils.constants import COURIER_COEFFICIENT
 
 
 class OrderAssigner(IOrderAssigner):
